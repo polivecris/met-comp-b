@@ -1,0 +1,8 @@
+gcc Henon-Heiles_EC.c -o HH-EC -lm
+gcc Henon-Heiles_VV.c -o HH-VV -lm
+gcc Henon-Heiles_RK4.c -o HH-RK4 -lm
+gcc Henon-Heiles_RK45.c -o HH-RK45 -lm
+./HH-EC
+./HH-VV
+./HH-RK4
+./HH-RK45

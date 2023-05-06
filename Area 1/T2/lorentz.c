@@ -1,0 +1,219 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+
+#define mp (1.6726219E4)
+#define me (9.10938356)
+
+#define qp (1.60217662)
+#define qe (-1.60217662)
+
+double ax(double a,double vz){
+  double y;
+  y=-a*vz;
+  return y;
+}
+
+double ay(double a,double vy){
+  double y;
+  y=a*0.0;
+  return y;
+}
+
+double az(double a,double vx){
+  double y;
+  y=a*vx;
+  return y;
+}
+
+int main(void){
+  double x,y,z,xo,yo,zo;
+  double vx,vy,vz,vxo,vyo,vzo;
+  double a,q,m,Bo;
+  double t,ti=0.0,tf=10.0,h;
+  
+  double k1x,k2x,k3x,k4x;     // Relacionado a posicao
+  double k1y,k2y,k3y,k4y;
+  double k1z,k2z,k3z,k4z;
+
+  double k1vx,k2vx,k3vx,k4vx; // Relacionado a velocidade
+  double k1vy,k2vy,k3vy,k4vy;
+  double k1vz,k2vz,k3vz,k4vz;
+  int i,N,j;
+  FILE *euler;
+  FILE *EC;
+  FILE *RK2;
+  FILE *RK4;
+
+  for(j=0;j<2;j++){
+    if(j==0){
+      Bo=30.0;
+      euler=fopen("eEuler.dat","w");
+      EC=fopen("eEC.dat","w");
+      RK2=fopen("eRK2.dat","w");
+      RK4=fopen("eRK4.dat","w");
+      a=(qe*Bo)/me;
+    }
+    if(j==1){
+      Bo=30000.0;
+      euler=fopen("pEuler.dat","w");
+      EC=fopen("pEC.dat","w");
+      RK2=fopen("pRK2.dat","w");
+      RK4=fopen("pRK4.dat","w");
+      a=(qp*Bo)/mp;
+    }
+    
+    N=200;
+    h=(tf-ti)/(1.0*N);
+    
+    xo=1.0/a; yo=0.0; zo=0.0;
+    vxo=0.0; vyo=0.02; vzo=1.0;
+    
+    /***** Euler *****/
+    x=xo; y=yo; z=zo;
+    vx=vxo; vy=vyo; vz=vzo;
+    t=ti;
+  
+    for(i=0;i<N;i++){
+      fprintf(euler,"%.12e %.12e %.12e %.12e\n",t,x,y,z);
+      /* Atualiza velocidade */
+      vx+=ax(a,vz)*h;
+      vy+=ay(a,vy)*h;
+      vz+=az(a,vx)*h;
+      /* Atualiza posição*/
+      x+=vx*h;
+      y+=vy*h;
+      z+=vz*h;
+      
+      /* Atualiza tempo */
+      t=(i+1)*h;
+    }
+    fprintf(euler,"%.12e %.12e %.12e %.12e\n",t,x,y,z);
+
+    
+    /***** Euler-Cromer *****/
+    x=xo; y=yo; z=zo;
+    vx=vxo; vy=vyo; vz=vzo;
+    t=ti;
+  
+    for(i=0;i<N;i++){
+      fprintf(EC,"%.12e %.12e %.12e %.12e\n",t,x,y,z);
+      /* Atualiza posição*/
+      x+=vx*h;
+      y+=vy*h;
+      z+=vz*h;
+
+      /* Atualiza velocidade */
+      vx+=ax(a,vz)*h;
+      vy+=ay(a,vy)*h;
+      vz+=az(a,vx)*h;
+      
+      /* Atualiza tempo */
+      t=(i+1)*h;
+    }
+    fprintf(EC,"%.12e %.12e %.12e %.12e\n",t,x,y,z);
+
+
+    /***** Runge-Kutta 2 *****/
+    x=xo; y=yo; z=zo;
+    vx=vxo; vy=vyo; vz=vzo;
+    t=ti;
+  
+    for(i=0;i<N;i++){
+      fprintf(RK2,"%.12e %.12e %.12e %.12e\n",t,x,y,z);
+      /* Cálculo de K1 */
+      k1x=vx*h;
+      k1y=vy*h;
+      k1z=vz*h;
+
+      k1vx=ax(a,vz)*h;
+      k1vy=ay(a,vy)*h;
+      k1vz=az(a,vx)*h;
+
+      /* Cálculo de K2 */
+      k2x=(vx+0.5*k1vx)*h;
+      k2y=(vy+0.5*k1vy)*h;
+      k2z=(vz+0.5*k1vz)*h;
+
+      k2vx=ax(a,vz+0.5*k1vz)*h;
+      k2vy=ay(a,vy+0.5*k1vy)*h;
+      k2vz=az(a,vx+0.5*k1vx)*h;
+
+      /* Atualiza posição */
+      x+=k2x;
+      y+=k2y;
+      z+=k2z;
+      /* Atualiza velocidade */
+      vx+=k2vx;
+      vy+=k2vy;
+      vz+=k2vz;
+      /* Atualiza tempo */
+      t=(i+1)*h;
+    }
+    fprintf(RK2,"%.12e %.12e %.12e %.12e\n",t,x,y,z);
+
+    /***** Runge-Kutta 4 *****/
+    x=xo; y=yo; z=zo;
+    vx=vxo; vy=vyo; vz=vzo;
+    t=ti;
+  
+    for(i=0;i<N;i++){
+      fprintf(RK4,"%.12e %.12e %.12e %.12e\n",t,x,y,z);
+      /* Cálculo de K1 */
+      k1x=vx*h;
+      k1y=vy*h;
+      k1z=vz*h;
+
+      k1vx=ax(a,vz)*h;
+      k1vy=ay(a,vy)*h;
+      k1vz=az(a,vx)*h;
+
+      /* Cálculo de K2 */
+      k2x=(vx+0.5*k1vx)*h;
+      k2y=(vy+0.5*k1vy)*h;
+      k2z=(vz+0.5*k1vz)*h;
+
+      k2vx=ax(a,vz+0.5*k1vz)*h;
+      k2vy=ay(a,vy+0.5*k1vy)*h;
+      k2vz=az(a,vx+0.5*k1vx)*h;
+
+      /* Cálculo de K3 */
+      k3x=(vx+0.5*k2vx)*h;
+      k3y=(vy+0.5*k2vy)*h;
+      k3z=(vz+0.5*k2vz)*h;
+
+      k3vx=ax(a,vz+0.5*k2vz)*h;
+      k3vy=ay(a,vy+0.5*k2vy)*h;
+      k3vz=az(a,vx+0.5*k2vx)*h;
+
+      /* Cálculo de K4 */
+      k4x=(vx+1.0*k3vx)*h;
+      k4y=(vy+1.0*k3vy)*h;
+      k4z=(vz+1.0*k3vz)*h;
+
+      k4vx=ax(a,vz+1.0*k3vz)*h;
+      k4vy=ay(a,vy+1.0*k3vy)*h;
+      k4vz=az(a,vx+1.0*k3vx)*h;
+
+      /* Atualiza posição */
+      x+=(1.0/6.0)*(k1x+2.0*k2x+2.0*k3x+k4x);
+      y+=(1.0/6.0)*(k1y+2.0*k2y+2.0*k3y+k4y);
+      z+=(1.0/6.0)*(k1z+2.0*k2z+2.0*k3z+k4z);
+
+      /* Atualiza velocidade */
+      vx+=(1.0/6.0)*(k1vx+2.0*k2vx+2.0*k3vx+k4vx);
+      vy+=(1.0/6.0)*(k1vy+2.0*k2vy+2.0*k3vy+k4vy);
+      vz+=(1.0/6.0)*(k1vz+2.0*k2vz+2.0*k3vz+k4vz);
+
+      /* Atualiza tempo */
+      t=(i+1)*h;
+    }
+    fprintf(RK4,"%.12e %.12e %.12e %.12e\n",t,x,y,z);
+
+    fclose(euler);
+    fclose(EC);
+    fclose(RK2);
+    fclose(RK4);
+  }
+  return 0;
+}

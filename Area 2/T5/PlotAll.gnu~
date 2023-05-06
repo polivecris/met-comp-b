@@ -1,0 +1,3 @@
+load 'Metodos.gnu'
+load 'poincare.gnu'
+load 'posicao.gnu'

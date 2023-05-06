@@ -1,0 +1,37 @@
+f(x)=0
+
+set term pos enh col 'Times, 20'
+set output 'lyapunov_a00_b05.eps'
+set multiplot layout 2,1 rowsfirst
+set xrange[0:3.864]
+plot 'lyapunov_a0.00_b0.50.dat' w l, f(x) notitle
+plot 'bifurcac_a0.00_b0.50.dat' w d
+unset multiplot
+unset output
+set term qt
+
+
+
+set xrange[8.0e-03:2.64]
+plot 'lyapunov_a0.00_b2.00.dat' w l, 'bifurcac_a0.00_b2.00.dat' w d, f(x) notitle
+set term pos enh col 'Times, 20'
+set output 'lyapunov_a00_b20.eps'
+replot
+unset output
+set term qt
+
+set xrange[0:2.16]
+plot 'lyapunov_a0.00_b2.50.dat' w l, 'bifurcac_a0.00_b2.50.dat' w d, f(x) notitle
+set term pos enh col 'Times, 20'
+set output 'lyapunov_a00_b25.eps'
+replot
+unset output
+set term qt
+
+set xrange[-0.5:1.656]
+plot 'lyapunov_a-0.50_b3.00.dat' w l, 'bifurcac_a-0.50_b3.00.dat' w d, f(x) notitle
+set term pos enh col 'Times, 20'
+set output 'lyapunov_a05_b30.eps'
+replot
+unset output
+set term qt

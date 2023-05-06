@@ -1,0 +1,45 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+
+double function(double t, double y){
+  double f;
+  f=-y+t+1;
+  return f;
+}
+
+double midpoint(double t, double y, double h){
+  double x;
+  x=y+h*function(t+0.5*h,y+0.5*function(t,y));
+  return x;
+}
+
+double modified_euler(double t, double y, double h){
+  double x;
+  x=y+0.5*(f(t,y)+f(t+h,y+h*f(t,y)));
+  return x;
+}
+
+double solution(double t, double y){
+  double f;
+  f=exp(-t)+0.5*t*t+1;
+  return f;
+}
+
+int main(void){
+  int n, N;
+  double t, y, yo, ti, tf, sol;
+
+  ti=0;
+  tf=1;
+  yo=1;
+
+  //For para calcular isso ao longo do intervalo
+  //For para mudar h
+  //Encontrar erro no fim do intervalo
+  //Escrever nos arquivos as coisas :)
+
+  
+
+  return 0;
+}

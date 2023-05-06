@@ -1,0 +1,10 @@
+set xlabel 't'
+set ylabel 'x(t)'
+set title "{/Symbol q}o=0.1 rad, {/Symbol q}'o=0.0, g=10.0 m/s^{2}, L=1.0 m, h=0.1"
+plot 'vel-verlet.dat' w l title 'Verlet'
+
+set term pos enh col 'Times,14'
+set out 'PenduloVelVerlet.eps'
+replot
+unset out
+set term qt

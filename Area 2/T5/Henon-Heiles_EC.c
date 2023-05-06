@@ -1,0 +1,79 @@
+// Kepler caótico usando Velocity-Verlet
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+
+// Aceleracao 
+double ax(double x, double y){
+  double accel;
+  // x"=-x-2xy
+  accel=-x-2.0*x*y;
+  return accel;
+}
+
+double ay(double x, double y){
+  double accel;
+  // x"=-y-x²+y²
+  accel=-y-x*x+y*y;
+  return accel;
+}
+
+int main(){
+  int i, n, N;
+  // Grandezas fisicas envolvidas
+  double t,ti,tf,xo,x,y,yo,vx,vxo,vy,vyo,h,E,Eo,aox,aoy;
+  FILE*EC=fopen("Euler-Cromer.dat","w");
+  
+  // Condições iniciais
+  ti=0.0;
+  tf=1.0E3;
+
+  Eo=(1.0/12.0);
+ 
+  xo=0.0;
+  yo=0.02;
+
+  vyo=-0.08;
+  vxo=sqrt(2*Eo-vyo*vyo-yo*yo+(2.0/3.0)*yo*yo*yo);
+  
+  N=1.0E5;
+  h=(tf-ti)/(1.0*N);
+  
+  // Valores iniciais
+  x=xo;
+  y=yo;
+  vx=vxo;
+  vy=vyo;
+  E=Eo;
+  
+  t=ti;
+    
+  for(n=0;n<N;n++){
+    //if(fabs(x)<0.001 && vx>0){
+    fprintf(EC,"%f %.12e %.12e %.12e %.12e %.12e\n",t,x,y,vx,vy,E);
+    printf("%f %.12e %.12e %.12e %.12e\n",t,x,y,vx,vy);
+    //}
+
+    // Acelerações instantâneas
+    aox=ax(x,y);
+    aoy=ay(x,y);
+    // Velocidade final
+    vx=vx+ax(x,y)*h;
+    vy=vy+ay(x,y)*h;
+    
+    // Posicao no fim do intervalo
+    x=x+vx*h;
+    y=y+vy*h;
+    
+    // Atualiza energia
+    E=0.5*vx*vx+0.5*vy*vy+0.5*x*x+0.5*y*y+x*x*y-(1.0/3.0)*y*y*y;
+    
+    // Atualiza tempo
+    t=(n+1)*h;
+  }
+  //if(fabs(x)<0.001 && vx>0){
+  fprintf(EC,"%f %.12e %.12e %.12e %.12e %.12e\n",t,x,y,vx,vy,E);
+  printf("%f %.12e %.12e %.12e %.12e\n",t,x,y,vx,vy);
+  //}
+  return 0;
+}

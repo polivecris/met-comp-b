@@ -1,0 +1,66 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+
+double funcao(double t,double x){
+  double y;
+  y=x-(t*t)+1;
+  
+  return y;
+}
+
+double RK2Heun(double t,double x, double h){
+  double alpha=0.5, beta=0.5, gamma=1, delta=1;
+  double k1, k2;
+
+  k1=funcao(t,x);
+  k2=funcao((t+gamma*h),(x+delta*k1*h));
+
+  x=x+(alpha*k1+beta*k2)*h;
+
+  return x;
+}
+
+double RK2PontoCentral(double t,double x, double h){
+  double alpha=0.0, beta=1.0, gamma=0.5, delta=0.5;
+  double k1, k2;
+
+  k1=funcao(t,x);
+  k2=funcao((t+gamma*h),(x+delta*k1*h));
+
+  x=x+(alpha*k1+beta*k2)*h;
+
+  return x;
+}
+
+double RK2Ralston(double t,double x, double h){
+  double alpha=1.0/3.0, beta=2.0/3.0, gamma=3.0/4.0, delta=3.0/4.0;
+  double k1, k2;
+
+  k1=funcao(t,x);
+  k2=funcao((t+gamma*h),(x+delta*k1*h));
+
+  x=x+(alpha*k1+beta*k2)*h;
+
+  return x;
+}
+
+
+int main(){
+  double t,xo,x,h,ti,tf,err;
+  xo=0.5;
+  ti=0.0;
+  tf=2.0;
+  h=0.1;
+
+  x=xo;
+  for(t=ti;t<tf;t+=h){
+      printf("%f %.12e\n",t,x);
+      x=RK2PontoCentral(t,x,h);
+  }
+  printf("%f %.12e\n",tf, x);
+
+  err=fabs(9.0-0.5*exp(2.0)-x);
+  printf("%f %.12e\n",h, err);
+  return 0;
+}

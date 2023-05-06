@@ -1,0 +1,149 @@
+// Lancamento de foguete sob gravidade em Euler
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+
+
+// Taxa de variação dv/dm 
+double rate(double m,double v, double c){
+  double y,g=9.8,u=2600.0,a=1.42E0;
+  y=(c/a)*v*v + g/a - u/m;
+  return y;
+}
+
+// Problema sem solução analítica simples
+
+int main(void){
+  int i,n,N; // Variáveis de iteração
+  double m,mi,mf,v,vo,h; // Grandezas físicas envolvidas + passo
+  double c,g,a,u; // Grandezas especificas do problema
+  double k1,k2,k3,k4; // k's do método de Runge-Kutta
+  
+  // Arquivos onde serão salvos as coisas
+  FILE*arq;
+  char nome[30];
+  
+  c=0.1;  // Coeficiente de arrasto (loop vai reduzir valor de c) 
+  for(i=1;i<8;i++){
+    //*********************************************************************
+    // A partir daqui o método é Euler
+    //*********************************************************************
+
+    N=210;    // Numero de passos
+    mi=2.8E2; // [1E4 kg] Massa do foguete + combustível
+    mf=0.7E2; // [1E4 kg] Massa do foguete após a queima do combustível
+
+    h=(mf-mi)/(1.0*N); // Passo
+  
+    // Condições iniciais
+    vo=0.0;    // [m/s] Velocidade inicial do foguete
+    g=9.8;     // [m/s^2] Aceleração da gravidade (considerada constante)
+    u=2600.0;  // [m/s] Velocidade de exaustão 
+    a=1.42E0;  // [1E4 kg/s] Taxa de queima de combustível
+  
+    v=vo;
+    m=mi;
+
+    sprintf(nome,"dados/RocketEulerRes%.2e.dat",c);
+    arq=fopen(nome,"w");
+    
+    for(n=0;n<N;n++){
+      fprintf(arq,"%.12e %.12e %.12e\n",m,v,rate(m,v,c));
+      printf("%.12e %.12e %.12e\n",m,v,rate(m,v,c));
+   
+      v=v+rate(m,v,c)*h;
+      
+      m=mi+(n+1)*h;
+    }
+    fprintf(arq,"%.12e %.12e %.12e\n",m,v,rate(m,v,c));
+    printf("%.12e %.12e %.12e\n",m,v,rate(m,v,c));
+    fclose(arq);
+
+
+    
+    //*********************************************************************
+    // A partir daqui o método é RK2
+    //*********************************************************************
+  
+    N=210;    // Numero de passos
+    mi=2.8E2; // [1E4 kg] Massa do foguete + combustível
+    mf=0.7E2; // [1E4 kg] Massa do foguete após a queima do combustível
+
+    h=(mf-mi)/(1.0*N); // Passo
+  
+    // Condições iniciais
+    vo=0.0;    // [m/s] Velocidade inicial do foguete
+    g=9.8;     // [m/s^2] Aceleração da gravidade (considerada constante)
+    u=2600.0;  // [m/s] Velocidade de exaustão 
+    a=1.42E0;  // [1E4 kg/s] Taxa de queima de combustível
+  
+    v=vo;
+    m=mi;
+    
+    sprintf(nome,"dados/RocketRK2Res%.2e.dat",c);
+    arq=fopen(nome,"w");
+    
+    for(n=0;n<N;n++){
+      fprintf(arq,"%.12e %.12e %.12e\n",m,v,rate(m,v,c));
+      printf("%.12e %.12e %.12e\n",m,v,rate(m,v,c));
+   
+      k1=rate(m,v,c)*h;
+      k2=rate(m+0.5*h,v+0.5*k1,c)*h;
+    
+      v=v+k2;
+    
+      m=mi+(n+1)*h;
+    }
+    fprintf(arq,"%.12e %.12e %.12e\n",m,v,rate(m,v,c));
+    printf("%.12e %.12e %.12e\n",m,v,rate(m,v,c));
+    fclose(arq);
+
+    
+    //*********************************************************************
+    // A partir daqui o método é RK4
+    //*********************************************************************
+
+    N=210;    // Numero de passos
+    mi=2.8E2; // [1E4 kg] Massa do foguete + combustível
+    mf=0.7E2; // [1E4 kg] Massa do foguete após a queima do combustível
+
+    h=(mf-mi)/(1.0*N); // Passo
+  
+    // Condições iniciais
+    vo=0.0;    // [m/s] Velocidade inicial do foguete
+    g=9.8;     // [m/s^2] Aceleração da gravidade (considerada constante)
+    u=2600.0;  // [m/s] Velocidade de exaustão 
+    a=1.42E0;  // [1E4 kg/s] Taxa de queima de combustível
+  
+    v=vo;
+    m=mi;
+
+    sprintf(nome,"dados/RocketRK4Res%.2e.dat",c);
+    arq=fopen(nome,"w");
+
+    for(n=0;n<N;n++){
+      fprintf(arq,"%.12e %.12e %.12e\n",m,v,rate(m,v,c));
+      printf("%.12e %.12e %.12e\n",m,v,rate(m,v,c));
+    
+      k1=rate(m,v,c)*h;
+      k2=rate(m+0.5*h,v+0.5*k1,c)*h;
+      k3=rate(m+0.5*h,v+0.5*k2,c)*h;
+      k4=rate(m+1.0*h,v+1.0*k3,c)*h;
+  
+      v=v+(1.0/6.0)*(k1+2.0*k2+2.0*k3+k4);
+
+      m=mi+(n+1)*h;
+    }
+    fprintf(arq,"%.12e %.12e %.12e\n",m,v,rate(m,v,c));
+    printf("%.12e %.12e %.12e\n",m,v,rate(m,v,c));
+    fclose(arq);
+    
+    if(i<6){
+      c=c/10;
+    }else{
+      c=0;
+    }
+  }
+	
+  return 0;
+}

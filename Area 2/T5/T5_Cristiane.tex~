@@ -1,0 +1,164 @@
+\documentclass[brazilian, 10pt, a4paper, final]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{float}
+\usepackage[left=1.5cm, right=1.5cm]{geometry}
+
+\title{\textbf{Caos no Sistema de Hénon-Heiles}}
+
+\author{Cristiane de Paula Oliveira\\\\\small{Instituto de Física -- Universidade Federal do Rio Grande do Sul}}
+
+\begin{document}
+
+\maketitle
+
+
+\begin{abstract}
+  \noindent
+  \\ \textbf{Palavras-chave:}
+\end{abstract}
+
+\begin{multicols*}{2}
+\section{Introdução}
+
+
+\section{Problema}
+
+\section{Métodos Numéricos}
+
+\subsection{Método Velocity-Verlet}
+O método velocity-Verlet calcula a posição e a velocidade de uma partícula no mesmo instante. Este método é útil no caso em que a aceleração não depende explicitamente da velocidade.
+
+Os calculos serem feitos são
+\begin{eqnarray}
+  x_{n+1}&=&x_n+v_{n}h+\frac{1}{2}a_nh^2; \\
+  a_{n+1}&=&a(x_{n+1}); \\
+  v_{n+1}&=&v_n+\frac{1}{2}(a_n+a_{n+1}).
+\end{eqnarray}
+
+
+\subsection{Método de Runge-Kutta de 4ª ordem}
+O método de Runge-Kutta de $4^{a}$ ordem consiste em encontrar
+\begin{eqnarray}
+ k_1&=&hf(t_n;x_n), \\
+ k_2&=&hf\left(t_n+\frac{1}{2}; x_n +\frac{1}{2}k_1\right), \\
+ k_3&=&hf\left(t_n+\frac{1}{2}; x_n +\frac{1}{2}k_2\right)\text{ e} \\
+ k_4&=&hf\left(t_n+h; x_n + k_3\right) 
+\end{eqnarray}
+\noindent
+de forma que
+\begin{equation}
+ x_{n+1}=x_{n}+\frac{1}{6}\left[k_1+2\,k_2+2\,k_3+k_4\right]. 
+\end{equation}
+
+
+\subsection{Método de Fehlberg}
+Este método utiliza um método de Runge-Kutta com erro de truncamento local de ordem 5 para obter uma estimativa do erro local num método de Runge-Kutta de ordem 4.
+
+O método de Runge-Kutta de ordem 5 é
+\begin{equation}
+  x_{n+1}=x_n+c_1k_1+c_2k_2+c_3k_3+c_4k_4+c_5k_5+c_6k_6,
+\end{equation}
+e o  método de Runge-Kutta de ordem 4 é
+\begin{equation}
+  x_{n+1}^*=x_n^*+c_1^*k_1+c_2^*k_2+c_3^*k_3+c_4^*k_4+c_5^*k_5+c_6^*k_6,
+\end{equation}
+onde
+\begin{eqnarray}
+  k_1&=&hf(t_n;x_n),\\
+  k_2&=&hf(t_n +a_2h;x_n+b_{21}k_1),\\
+  k_3&=&hf(t_n +a_3h;x_n+b_{31}k_1+b_{32}k_2),\\
+  \nonumber & & \dots \\
+  k_6&=&hf(t_n+a_6h;x_n+b_{61}k_1+b_{62}k_2+\nonumber \\
+     & &b_{63}k_3+b_{64}k_4+b_{65}k_5). 
+\end{eqnarray}
+
+Os coeficientes $c_i$,$c_i^*$ e $a_i$,(i=1,2,...,6), e os coeficientes $b_{i,j}$,(i,j=1,2,...,6) e (i>j), são encontradas tabeladas, como por exemplo em Burden.%\cite{Burden_book}.
+
+A estimativa do erro corrente $\epsilon_c$ é
+\begin{equation}
+  \epsilon_c=|x_{n+1}-x_{n+1}^*|.
+\end{equation}
+
+A partir da estimativa do erro, ESCREVER MELHOR AQUI calcula-se um novo passo $h$ adequado para a resolução do problema.
+\begin{equation}
+  h_{novo}=h\left(\frac{\epsilon}{2\epsilon_c}\right)^{\frac{1}{4}},
+\end{equation}
+em que $\epsilon$ é a tolerância do erro.
+\section{Resultados e análises}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.34\textwidth,angle=-90]{MetodosE.eps}
+  \caption{Erros relativos em relação a energia no intervalo $0 \le t\le 1000$ com passo $h=0,01$.Percebe-se que o método velocity-Verlet é o que mais se aproxima da energia do sistema conservativo.}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.34\textwidth,angle=-90]{lim_caos.eps}
+  \caption{}
+\end{figure}
+
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.34\textwidth,angle=-90]{P004167.eps}
+  \caption{}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.34\textwidth,angle=-90]{P008333.eps}
+  \caption{}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.34\textwidth,angle=-90]{P012500.eps}
+  \caption{}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.34\textwidth,angle=-90]{P016667.eps}
+  \caption{}
+\end{figure}
+
+\section{Considerações Finais}
+
+
+\begin{thebibliography}{n}
+\bibitem{Henon_paper} 
+  M.~Henon and C.~Heiles,
+  {\em The Applicability of the Third Integral of Motion: Some Numerical Experiments},
+  Astron.\ J.\  {\bf 69}, 73 (1964).
+  
+\bibitem{Goldstein_book} H. ~GOLDSTEIN, C. ~POOLE, J. ~SAFKO. {\em Classical mechanics}, (editora Addison Wesley, 3ª edição, 2002).
+
+\bibitem{Burden_book} RICHARD L. BURDEN, J. DOUGLAS FAIRES e ANNETTE M. BURDEN. {\em Análise Numérica}, (editora Cengage Learning,  tradução da 10ª edição norte-americana, 2016).
+  
+\end{thebibliography}
+
+\end{multicols*}
+
+\appendix
+\section{APÊNDICE - INSTRUÇÕES}
+
+Para compilar e rodar todos os programas utiliza-se o script:
+\begin{verbatim}
+$ sh RunT3.sh
+\end{verbatim}
+
+Ao final, plota-se os gráficos utilizando:
+\begin{verbatim}
+gnuplot> load 'PlotAll.gnu'
+\end{verbatim}
+
+\end{document}

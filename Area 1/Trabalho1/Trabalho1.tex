@@ -1,0 +1,527 @@
+\documentclass[a4paper, brazilian, 8pt, final]{article}
+\usepackage[brazil]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[left=1.5cm, right=1.5cm]{geometry}
+\usepackage{multicol}
+\usepackage{amsmath}
+\usepackage{subfigure}
+\usepackage{listings}
+\usepackage{enumerate}
+\usepackage[left=0.5cm]{geometry}
+
+\pagestyle{empty}
+\title{\textbf{Métodos numéricos no estudo do problema de lançamento oblíquo}}
+\author{Cristiane de Paula Oliveira \\\\ \small Instituto de Física - Universidade Federo Rio Grande do Sul \\ \small cristiane.p.oliveira@ufrgs.br}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Neste trabalho, buscou-se estudar qualitativa e quantitativamente o problema do lançamento foguetes utilizando os algoritmos de Runge-Kutta de 2ª e 4ª ordens, e de Euler-Cromer como solucionadores numéricos. Estuda-se os efeitos da variação do parâmetro de amortecimento $\gamma$ sobre o movimento de uma partícula lançada com uma certa velocidade inicial $v_{0}$ subtendendo um ângulo $\theta$ com o eixo dos x, sob a ação da gravidade e de uma força resistiva proporcional à sua velocidade. Analisa-se o comportamento do erro das soluções numéricas com a variação do passo de tempo na integração para um dos problemas (problema 1, com solução analítica). Também busca-se encontrar um modelo simples que descreva as colisões que suceder-se-iam entre o projétil e o solo caso o tempo de integração numérica fosse prolongado. 
+\end{abstract}
+
+\textbf{Palavras-chave:} equações diferenciais (EDO's) - métodos numéricos 
+
+% Descrever o sistema físico.
+\begin{multicols}{2}
+\section{Introdução}
+\quad Algoritmos numéricos são particularmente úteis na solução de problemas físicos cujo desenvolvimento analítico é demasiadamente dispendioso ou mesmo inviável. Três métodos simples, porém bastante empregados com estes fins, são os de Runge-Kutta de 2ª e de 4ª ordem, e o de Euler-Cromer. 
+
+\quad Ao longo de todo este trabalho, buscou-se utilizar as propriedades de tais métodos para exploração dos problemas que serão descritos a diante. Para isto, este texto foi organizado da seguinte forma: Na seção 2 formula-se uma descrição matemática de ambos os problemas a serem resolvidos pelos métodos numéricos acima, utilizando argumentos provindos da bem conhecida mecânica newtoniana. Na seção 3 é feita uma apresentação dos métodos, com descrições de alguns parâmetros associados, resultados parciais, e gráficos das soluções. Na seção 4, estuda-se o efeito do passo de tempo ($\Delta t$) sobre os erros dos métodos apenas para o caso do problema 1, para o qual pôde-se calcular esses erros utilizando as soluções exatas conhecidas. Na seção 5 modela-se o problema 1 incluindo colisões sucessivas com o solo. Na seção 6 fornecem-se algumas discussões interessantes seguidas pelas conclusões finais. No apêndice A são dadas algumas instruções básicas de uso dos códigos, com informações úteis sobre scripts e bibliotecas. E no apêndice B anexou-se os códigos-fonte que implementam cada algoritmo\footnote{Para economia de espaço, preferiu-se omitir algumas partes dos programas que não dizem respeito aos métodos em si (como alguns dos comentários, por exemplo) deixando-os assim apenas para que o leitor os veja nos próprios arquivos.}.
+
+\section{Formulação dos problemas físicos}
+\quad Considere um objeto puntiforme lançado obliquamente nas proximidades da superfície da Terra, em que g$\sim$cte., através de um meio que gera sobre o corpo, em cada direção (x e y), uma força resistiva proporcional à velocidade nessa direção. Utilizando o formalismo newtoniano (vide \cite{Marion_book}), pode-se mostrar que as equações de movimento para uma partícula sob tais condições são dadas por:
+
+\begin{equation}
+\ddot{x} = -\gamma v_{x}
+\end{equation}
+\begin{equation}
+\ddot{y} = -g -\gamma v_{y}
+\end{equation}
+
+\quad Integrando as equações acima utilizando métodos analíticos (veja, por exemplo, \cite{Zill_book}), chega-se à solução exata do problema: 
+
+\begin{equation}
+x(t) = x_{0} + \frac{V_{0x}}{\gamma}\left[1 - \exp(-\gamma t) \right]
+\end{equation}
+\begin{equation}
+y(t) = y_{0} + \left(\frac{V_{0y}\gamma + g}{\gamma^{2}} \right) \left[1 - \exp(-\gamma t) \right] - \frac{g}{\gamma}t
+\end{equation}
+
+em que $x_{0}$, $y_{0}$, $V_{0x}$, e $V_{0y}$ são determinados pelas condições iniciais.\\\\
+\quad Considere agora a mesma partícula do problema anterior, porém com a diferença de que desta vez tem-se uma força cujas componentes dependem não só da velocidade na sua direção correspondente, mas também da velocidade na direção perpendicular à ela. Naturalmente um problema mais complexo, porém facilmente integrável numericamente. Formulando matemamicamente o problema, chega-se à seguinte descrição para as equações de movimento:
+
+\begin{equation}
+\ddot{x} = -\gamma v v_{x}
+\end{equation}
+\begin{equation}
+\ddot{y} = -g -\gamma v v_{y}
+\end{equation}   
+
+reescrevendo as equações acima de outra forma\footnote{As equações de movimento foram resolvidos nos programas nesta nova forma.}:
+
+\begin{equation}
+\ddot{x} = -\gamma (vx^{2} + vy^{2})^{\frac{1}{2}} v_{x}
+\end{equation}
+\begin{equation}
+\ddot{y} = -g -\gamma (vx^{2} + vy^{2})^{\frac{1}{2}} v_{y}
+\end{equation} 
+
+Para os fins deste trabalho, utiliza-se a solução exata para uma estimação do erro associado às soluções numéricas. Nesta seção, descrever-se-ão os procedimentos através dos quais a solução do problema proposto anteriormente foi obtida.
+
+\section{Soluções numéricas}
+\subsection{Runge-Kutta 2}
+\quad O algoritmo de RK2 pode ser implementado de três maneiras principais: utilizando-se os métodos de Heun, de Ralston, e do Ponto-Central. Optou-se por utilizar o método de Heun na resolução dos problemas deste trabalho.
+\end{multicols}
+
+\begin{figure}[!h]
+\centering
+\subfigure{\includegraphics[scale=0.7]{{RK2_[1]_[0.01]_[0.08]_nocol}.pdf}}
+\subfigure{\includegraphics[scale=0.7]{{RK2_[1]_[0.01]_[0.08]_nocol_err}.pdf}}
+\subfigure{\includegraphics[scale=0.7]{{RK2_[2]_[0.01]_[0.08]_nocol}.pdf}}
+\caption{\textbf{(a)} Em verde, solução analítica exata das Eqs.(1) e (2). Em preto, solução obtida com o método de Runge-Kutta de 2ª ordem e os seguintes parâmetros iniciais: $\theta = 60º$, $x_{0} = 0$, $y_{0} = 0$, $v_{0} = 600 m/s$, $\gamma = 0.08$, $dt = 0.01$ \textbf{(b)} Erros relativos associados às variáveis x (em verde) e y (em azul). Observe a escala de $10^{-6}$ do gráfico à direita. \textbf{(c)} Em verde, a solução obtida para o segundo problema com o método de Runge Kutta de 2ª ordem. Para este caso, não calculou-se distribuição de erro pelo fato de que a solução analítica exata (se houver) não era conhecida.}
+\end{figure}
+
+\newpage
+
+\begin{multicols}{2}
+\quad Seja $a(x,v_{x};t)$ uma função que corresponda a aceleração da partícula na direção do eixo dos x, com x (posição) e $v_{x}$ (velocidade na direção dos x) como variáveis dependentes, e t como variável independente. Para efetuar a integração pelo método de RK2, utiliza-se um conjunto de parâmetros úteis, usualmente chamados de $k_{i}$ (i = 1, 2, 3, ..., dependendo da ordem do Runge-Kutta). Estes parâmetros são:
+
+\begin{equation}
+k1_{x} = v_{x}\Delta t 
+\end{equation}
+\begin{equation}
+k1_{vx} = a(x, v_{x};t)\Delta t 
+\end{equation} 
+\begin{equation}
+k2_{x} = v_{x} + k1_{vx}
+\end{equation}  
+\begin{equation}
+k2_{vx} = a(x + k1_{x},v_{x} + k1_{vx};t + \Delta t) \Delta t
+\end{equation} 
+
+com os i+1-ésimos valores da posição e a velocidade dados por:
+
+\begin{equation}
+x_{i + 1} = x_{i} + \frac{1}{2}(k1_{x} + k2_{x})
+\end{equation}
+\begin{equation}
+[v_x]_{i + 1} = [v_x]_{i} + \frac{1}{2}(k1_{vx} + k2_{vx})
+\end{equation}
+
+\quad No gráfico (b) da figura anterior, o erro relativo em y apresenta um comportamento bastante peculiar. Inicialmente, em t = 0, o erro é nulo, e logo em seguida tende rapidamente a um valor em torno de $\sim 1.3.10^{-5}$ \%, e então decai suavemente. E finalmente, ao final do intervalo, começa a crescer rapidamente. Isto pode ser explicado pelo fato de a função calculada possuir diferentes graus "sensibilidade" ao passo de tempo ($dt$) utilizado nos cálculos numéricos (veja a seção 6). Por exemplo, nas partes mais suaves da curva, um passo pequeno não apresentará mudanças significativas no cálculo da solução em relação a um passo grande. Já nas partes mais sinuosas, um passo pequeno pode ser decisivo para obter boa precisão. 
+\end{multicols}
+
+\begin{multicols}{2}
+\subsection{Runge-Kutta 4}
+\quad Assim como no método anterior, definem-se aqui quatro parâmetros que serão utilizados na integração das Eqs.(1) e (2), (7) e (8). Procedendo de maneira análoga ao RK2, a integração pelo método de RK4 resulta, para a velocidade:
+
+\begin{equation}
+k1_{x} = v_{x}\Delta t 
+\end{equation}
+\begin{equation}
+k1_{vx} = a(x,v_{x};t)\Delta t 
+\end{equation} 
+\begin{equation}
+k2_{x} = (v_{x} + \frac{1}{2}k1_{x})\Delta t
+\end{equation} 
+\begin{equation}
+k2_{vx} = a(x + \frac{1}{2}k1_{x},v_{x} + \frac{1}{2}k1_{vx};t + \frac{1}{2}\Delta t)\Delta t
+\end{equation} 
+\begin{equation}
+k3_{x} = (v_{x} + \frac{1}{2}k2_{x})\Delta t
+\end{equation}
+\begin{equation}
+k3_{vx} = a(x + \frac{1}{2}k2_{x},v_{x} + \frac{1}{2}k2_{vx};t + \frac{1}{2}\Delta t)\Delta t
+\end{equation} 
+\begin{equation}
+k4_{x} = (v_{x} + k3_{x})\Delta t
+\end{equation}
+\begin{equation}
+k4_{vx} = a(x + k3_{x},v_{x} + k3_{vx};t + \Delta t)\Delta t
+\end{equation}  
+
+\quad Deste modo, as posições e velocidades podem ser iteradas para obter-se:
+
+\begin{equation}
+x_{i + 1} = x_{i} + \frac{1}{6}(k1_{x} + 2k2_{x} + 2k3_{x} + k4_{x})
+\end{equation}
+\begin{equation}
+[v_x]_{i + 1} = [v_x]_{i} + \frac{1}{6}(k1_{vx} + 2k2_{vx} + 2k3_{vx} + k4_{vx})
+\end{equation}
+
+\quad Os parâmetros acima podem ser determinados de maneira inteiramente análoga para as correspondentes grandezas com respeito a y.
+\end{multicols}
+
+\begin{multicols}{2}
+\quad Os gráficos abaixo mostram a solução numérica obtida a partir do método de Runge-Kutta de 4ª ordem e a distribuição temporal do erro associado a ele.
+\end{multicols}
+
+\begin{figure}[!h]
+\centering
+\subfigure{\includegraphics[scale=0.7]{{RK4_[1]_[0.01]_[0.08]_nocol}.pdf}}
+\subfigure{\includegraphics[scale=0.7]{{RK4_[1]_[0.01]_[0.08]_nocol_err}.pdf}}
+\subfigure{\includegraphics[scale=0.7]{{RK4_[2]_[0.01]_[0.08]_nocol}.pdf}}
+\caption{\textbf{(a)} Em vermelho, solução analítica exata das Eqs.(1) e (2). Em preto, solução obtida com o método de Runge-Kutta de 4ª ordem e os seguintes parâmetros iniciais: $\theta = 60º$, $x_{0} = 0$, $y_{0} = 0$, $v_{0} = 600 m/s$, $\gamma = 0.08$, $dt = 0.01$ \textbf{(b)} Erros relativos associados às veriáveis x (em vermelho) e y (em verde). Observe a escala de $10^{-12}$ no gráfico à direita. \textbf{(c)} Solução numérica com o método de RK4 para o segundo problema (em vermelho).}
+\end{figure}
+
+\begin{multicols}{2}
+\quad Para o caso do método de Runge-Kutta 4, não é tão trivial quanto no caso anterior explicar o que exatamente causa cada uma das descontinuidades presentes no gráfico (b). O que parece claro à primeira vista é o fato de que ora o erro se acumula, atinge um pico, ora é diluído e então descresce. Isto ocorre de maneira mais menos cíclica no início, mas depois o que se verifica é uma "explosão" no erro em y e uma constância no erro em x. O que torna bastante difícil a explicação do comportamento do erro com base na superposição de erros sequenciais sobre os parâmetros $k_{i}$ do método de RK4, uma vez que não há nada na curva que deixe explícito o que pode estar causando as descontinuidades. Como o leitor poderá perceber, as ordens de grandeza deste método são drasticamente menores do que nos outros.
+
+\subsection{Euler-Cromer}
+\quad Como último código de teste, escolheu-se o algoritmo de Euler-Cromer para determinar a solução dos problemas.
+\end{multicols}
+
+\begin{figure}[!h]
+\centering
+\subfigure{\includegraphics[scale=0.7]{{EC_[1]_[0.01]_[0.08]_nocol}.pdf}}
+\subfigure{\includegraphics[scale=0.7]{{EC_[1]_[0.01]_[0.08]_nocol_err}.pdf}}
+\subfigure{\includegraphics[scale=0.7]{{EC_[2]_[0.01]_[0.08]_nocol}.pdf}}
+\caption{\textbf{(a)} Em azul, solução analítica exata das Eqs.(1) e (2). Em preto, solução obtida com o método de Euler-Cromer e os seguintes parâmetros iniciais: $\theta = 60º$, $x_{0} = 0$, $y_{0} = 0$, $v_{0} = 600 m/s$, $\gamma = 0.08$, $dt = 0.01$ \textbf{(b)} Erros relativos associados às veriáveis x (em azul) e y (em rosa).}
+\end{figure}
+
+\begin{multicols}{2}
+\quad Da mesma forma como em RK2, no método de Euler-Cromer os erros associados à coordenada y são superiores, e apresentam um corpotamento crescente no tempo, enquanto que os associados a x crescem de maneira irrisória e aparentemente assintótica, estabilizando em $\sim 0.07$\%.
+\end{multicols}
+
+\begin{figure}[!h]
+\centering
+\subfigure{\includegraphics[scale=0.7]{{all_[1]}.pdf}}
+\subfigure{\includegraphics[scale=0.7]{{all_[2]}.pdf}}
+\caption{\textbf{(a)} Gráfico com todas as curvas calculadas com o método de Runge-Kutta 4 para o primeiro problema variando-se o parâmetro $\gamma$ (números listados verticalmente no gráfico) em passos de 0.01. Observe o significativo decréscimo no alcance à medida que $\gamma$ cresce. \textbf{(b)} Análogo à figura 4.(a) para o segundo problema.}
+\end{figure}
+
+\begin{multicols}{2}
+\section{Estudo da variação de $\Delta t$}
+\quad Para gerar uma tabela com diversos valores de $\Delta t$ como função do erro, basta rodar os programas, configurando a variável inteira "comp\_H" (definida na biblioteca icon.h) como tendo valor 1, e verificar um dos seguintes arquivos, conforme o caso: "hlist\_RK4", "hlist\_RK2.dat", ou "hlist\_EC.dat". Partindo-se dos métodos apresentados nas seções anteriores, pode-se fazer uma análise do comportamento do erro associado a cada um dos métodos como função do passo de tempo $\Delta t$, fixando-se um valor de $\gamma$, e um instante de tempo qualquer\footnote{Qualquer um exceto o instante inicial, por razões óbvias.}. Portanto, decidiu-se tomar o instante final como referência nas medidas, e $\gamma=0.08$ $s^{-1}$. A escolha deste instante tem por explicação o fato de que quanto maior o tempo de integração numérica, maior o erro acumulado sobre as variáveis calculadas. Por esta razão, em princípio\footnote{Como foi constatado pelo leitor nos gráficos anteriores, isto não acontece sempre. O método de RK4 apresenta valores oscilantes de erro, apesar de geralmente crescentes em média, à medida que t cresce.}, os instantes mais avançados deveriam ser os menos precisos. A análise do comportamento do erro foi feita para valores de $\Delta t$ entre 0.01 (inclusive) e 1 (inclusive). Abaixo, seguem os gráficos do erros absolutos como função do passo de tempo.
+\end{multicols}
+
+\begin{figure}[!h]
+\centering
+\subfigure{\includegraphics[scale=0.7]{h_RK2.pdf}}
+\subfigure{\includegraphics[scale=0.7]{h_RK4.pdf}}
+\subfigure{\includegraphics[scale=0.7]{h_EC.pdf}}
+\subfigure{\includegraphics[scale=0.7]{h_ALL.pdf}}
+\caption{\textbf{(a)} Distribuição de erros absolutos em x como função do passo de tempo tomado, $\Delta t$, para o método de RK2. Seu comportamento foi modelado com uma função quadrática (em vermelho) com três parâmetros livres: $f(x) = ax^{2} + bx + c$. \textbf{(b)} Análogo da figura (a) para o método de RK4, cujo comportamento foi modelado com uma função exponecial (em vermelho) de dois parâmetros livres: $f(x) = ae^{bx}$. A linha azul representa uma interpolação por splines feita sobre os dados, o que, como pode ser notado, reprsenta melhor os dados do que o modelo exponencial. \textbf{(c)} Análogo aos anteriores para o método de EC, modelado com uma função linear de dois parâmetros livres: $f(x) = ax + b$. \textbf{(d)} Logaritmos na base 10 dos erros para melhor visualização e comparação entre os métodos. O script que gera estes gráficos chama-se PlotH.gnu, e é rodado automaticamente pelos programas caso a variável inteira "plot\_H" (também definida em icon.h) assumir o valor 1.}
+\end{figure}
+
+\begin{multicols}{2}
+\quad Uma constatação interessante surge no momento em que calcula-se a distribuição de erros como função de $\Delta t$ para limites maiores do que a unidade (figura 6). Isto foi feito no gráfico a seguir, em que é mostrada esta distribuição para o caso em que o incremento temporal variou desde 0.01 até 10.
+\end{multicols}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=1]{h.pdf}
+\caption{Observe que, ao expandir os limites de variação de $\Delta t$, o comportamento do erro para o método de RK4 assume uma forma um tanto diferente em relação aos anteriores. Em vez de crescer de forma simples, há regiões em que o erro é praticamente constante, e depois aumenta rapidamente, de forma semelhante a uma função degrau comnbinada com uma exponencial.}
+\end{figure}
+
+\begin{multicols}{2}
+\quad Com ajustes dos modelos para os erros, obteve-se como resultado de mínimos quadrados os parâmetros mostrados na tabela 1:
+\end{multicols}
+
+\begin{table}[!h]
+\centering
+\begin{tabular}{c|c|c|c|c|c|c}
+\hline
+\hline
+Algoritmo & $a$ & $a_{err}$ & $b$ & $b_{err}$ & $c$ & $c_{err}$\\
+\hline
+\hline
+RK2 & 0.133 & $\pm$0.001 & -0.004 & $\pm$0.001 & 0.0003 & $\pm$0.0003\\
+RK4 & -0.002 & $\pm$2.718 & -38.136 & $\pm$60606.646 & - & -\\
+EC & 291.790 & $\pm$0.053 & 0.312 & $\pm$0.030 & - & -\\ 
+\hline
+\hline
+\end{tabular}
+\caption{Nesta tabela, são mostrados os parâmetros finais de cada ajuste sobre o comportamento do erro absoluto no cálculo da componente x da posição da partícula lançada em cada método. Os valores numéricos dos parâmetros e de suas incertezas também são encontrados nos arquivos "h\_RK2.par", "h\_RK4.par", e "h\_EC.par".}
+\end{table}
+
+\newpage
+
+\begin{multicols}{2}
+\section{Incluindo colisões na solução das equações de movimento}
+\quad Uma questão interessante a ser abordada aqui é: como incluir as subsequentes colisões do projétil nos cálculos executados pelos códigos? O tratamento numérico destas colisões foi feito através de uma modelagem aproximada da força que atua durante um breve instante de tempo sobre a partícula (de $t$ à $t + \Delta t$). Para isto, utilizou-se uma função de Heaviside como modelo para o comportamento da força. Entretanto, esta função tem como variável independente a coordenada y em vez do tempo pelo fato de que o projétil submeter-se-á à força da colisão num intervalo definido\footnote{Na verdade, entenda "definido" apenas como invariante frente aos outros parâmetros. Pois no mundo físico real, a colisão do projétil com o solo levará um certo instante ($> 0$) pelo fato de o mesmo não ser perfeitamente rígido. As fronteiras desse limite ($y-\Delta y$, e $y+\Delta y$) não são portanto bem conhecidos, pois dependem das propriedades geométricas e materiais do corpo.} de y independentemente dos parâmetros iniciais. Portanto, as Eqs.(5) e (6) passam a ser:
+
+\begin{equation}
+\ddot{x} = -\gamma vv_{x}
+\end{equation}
+\begin{equation}
+\ddot{y} = -g-\gamma vv_{y} + H(y)
+\end{equation}
+
+\quad Note que a primeira equação não foi alterada pelo fato de a força de colisão atuar somente na direção vertical. Embora as equações de movimento não dependam da massa da partícula lançada, o leitor deve notar que a força aplicada pelo solo sobre a mesma depende. Portanto, em princípio, qualquer valor de força é aceitável e físicamente possível, dependendo apenas da massa a colidir, ou seja, pode-se obter qualquer força de colisão, desde que se tenha inércia suficiente e que a colisão satisfaça o teorema de conservação da energia mecânica quando não houver forças dissipativas, como é o caso da figura 7.
+\end{multicols}
+
+\begin{figure}
+\centering
+\includegraphics[scale=1]{col.pdf}
+\caption{Neste gráfico, mostra-se a trajetória de uma partícula lançada formando um ângulo de 60$^{\circ}$ com o eixo dos x em que foram incluídas sucessivas colisões com o solo. A força que o mesmo exerce sobre a partícula teve de ser determinada por tentativa e erro, de modo a produzir mesmas amplitudes, por consevação de energia, uma vez que supõe-se uma colisão perfeitamente elástica.}
+\end{figure}    
+
+\begin{multicols}{2}
+\section{Discussão e conclusões}
+\quad Utilizou-se neste trabalho três algoritmos para resolução numérica de EDO's aplicados ao estudo de dois problemas de lançamento de projéteis cujas forças de arraste (em x) e de sustentação (em y) dependiam das velocidades de forma conhecida. No primeiro deles, em que as forças eram dadas por (1) e (2) multiplicadas pela massa do projétil, analisou-se o comportamento da solução ao longo de todo o percurso do projétil, computando-se, para todos os instantes de tempo, o erro local associado à aplicação de cada um dos métodos numéricos. Foi possível obter soluções bastante satisfatórias com todos os métodos. Determinou-se portanto que, para o método de RK4 o erro local como função do tempo assumia a forma mostrada na figura 1.(b), observando que o erro para y cresce rapidamente para $t > 43$ s, porém o erro para x tende a decrescer a partir desse valor. Como foi mencionado anteriormente, explicar detalhadamente os por quês das variações quase cíclicas do erro no método de RK4 não é uma tarefa trivial. 
+
+\quad O problema 2 proporcionou um interessante cenário para verificação da validade dos métodos aqui apresentados. Neste problema, utilizou-se uma força resistiva dependente da velocidade de uma forma mais complicada do que no problema anterior, uma vez que para cada direção em que tal força atuava, apareciam ambas as componentes da velocidade ($v_{x}$ e $v_{y}$). Ou seja, o movimento em x era afetado pelo movimento em y, o que parece um tanto contraintuitivo, pensar que movimentos em direções mutuamente perpendiculares podem influenciar um ao outro. Aplicando-se então os métodos de RK4 e RK2, obteve-se praticamente a mesma solução, ao menos visualmente. A surpresa emerge no momento em que estuda-se a solução sob a ótica do método de EC. Muito embora o fato de que EC é indubitavelmente menos preciso do que os RK's seja conhecido, uma solução completamente divergente para elevados valores de $\gamma$ não era o de se esperar, mas foi exatamente o obtido neste estudo. Entretanto, como era de se esperar, as três soluções convergem para soluções bastante próximas entre si (embora não a mesma) no limite em que $\gamma \rightarrow 0$. O que é facilmente explicável pelo fato de que à medida que $\gamma$ diminui, a dependência com as velocidades torna-se cada vez mais débil, deixando EC cada vez mais preciso.
+
+\quad Com isto, concluiu-se que o método de Euler-Cromer perde abruptamente sua precisão para forças dependentes das velocidades de forma significativa dependendo do quão expressiva for tal dependência. Note que não analisou-se aqui nenhuma informação sobre distribuições de erros para o segundo problema. Isto porque sua solução exata não era conhecida. Entretando, embora não esteja dentro do escopo deste texto, podemos elaborar um algoritmo que estime o erro dos métodos ao serem aplicados a este problema. Isto pode ser feito (como será constatado num trabalho posterior) através da implementação de um método multi-passos, em que a se compara os cálculos efetuados com um $\Delta t$ grande e com um pequeno, de modo que se tenha ao menos uma ideia da magnitude do erro. 
+
+\section*{APÊNDICE A - Instruções ao usuário}
+\quad Todos os códigos-fonte utilizados para a resolução dos problemas aqui apresentados foram escritos em C++, com alguns scripts auxiliares em shell e em gnuplot. A única plataforma a ser diretamente alterada pelo usuário é a biblioteca \textbf{icon.h} (de \textit{initial conditions}). Com ela, é possível alterar todas as condições em que serão resolvidos os problemas propostos neste trabalho. Para compilar o programa, basta entrar no diretório principal \textbf{/RK} e executar os seguintes comandos no terminal, conforme a situação\footnote{Como o leitor deve notar, o programa contém duas subpastas de destino para os arquivos de saída, mas os códigos aqui apresentados são capazes de identificar o diretório principal do programa e utilizá-la para o direcionamente desses arquivos. Portanto, não se faz necessária a troca de diretórios cada vez que o programa for movido para um lugar diferente.}:
+
+\begin{itemize}
+\item{\textbf{sh run\_RK4.sh}: para compilar e rodar apenas o código com o algoritmo de Runge-Kutta de 4ª ordem;}
+\item{\textbf{sh run\_RK2.sh}: para compilar e rodar apenas o código com o algoritmo de Runge-Kutta de 2ª ordem;}
+\item{\textbf{sh run\_EC.sh}: para compilar e rodar apenas o código com o algoritmo de Euler-Cromer;}
+\item{\textbf{sh runall.sh}: para compilar e rodar todos os códigos sequencialmente;}
+\end{itemize} 
+
+O leitor logo notará que os scripts para geração de gráficos são executados automaticamente pelos programas com o auxílio da biblioteca \textbf{rungnu.h} (de \textit{run gnuplot}, desde que as variáveis na biblioteca icon.h tenham valores adequados).
+
+Abaixo encontra-se uma descrição da função básica de cada arquivo, biblioteca, e script:
+
+\begin{enumerate}
+\item {\textbf{run\_RK4.sh}: script em shell para compilar e rodar o código referente ao método de RK4;}
+\item{\textbf{run\_RK2.sh}: análogo ao anterior, mas para RK2;}
+\item{\textbf{run\_EC.sh}: análogo aos anteriores, mas para Euler-Cromer;}
+\item{\textbf{runall.sh}: compila e roda todos os programs sequencialmente;}
+\item{\textbf{PlotAll.gnu}: script para plotar algumas das curvas calculadas num único gráfico;}
+\item{\textbf{PlotAllRK4.gnu}: script para plotar os dados calculados pelo método RK4;}
+\item{\textbf{PlotAllRK2.gnu}: script para plotar os dados calculados pelo método RK2;}
+\item{\textbf{PlotAllEC.gnu}: script para plotar os dados calculados pelo método EC;}
+\item{\textbf{PlotH.gnu}: script que gera os gráficos para comparação entre os erros como função de $\Delta t$.}
+\item{\textbf{rungnu.h}: biblioteca que roda os scripts em gnuplot conforme o método utilizado.}
+\item{\textbf{icon.h}: Incluída em rungnu.h. Biblioteca com as condições e parâmetros iniciais ($\gamma$, $g$, $dt$, etc.) utilizadas em todos os códigos;}
+\item{\textbf{fullpaths.h}: Incluída em rungnu.h. biblioteca que identifica o diretório atual do programa para uso nos direcionamentos dos arquivos de saída.}
+\end{enumerate}
+\end{multicols}
+
+\section*{APÊNDICE B}
+\quad O código que utiliza o método de RK2 é anexado abaixo:
+
+\begin{verbatim}
+# include <iostream>
+# include <cmath>
+# include <cstdlib>
+# include <fstream>
+# include <iomanip>
+# include <cstring>
+# include <sstream>
+# include "rungnu.h"
+
+using namespace std;
+
+int main()
+{
+int i;
+double x, y, t;
+double vx, vy;
+double k1x, k2x;
+double k1y, k2y;
+double k1vx, k2vx;
+double k1vy, k2vy;
+double xabs_err, xrel_err;
+double yabs_err, yrel_err;
+stringstream ss[100];
+
+	GetDir();
+
+	//***** Setting Initial Conditions ****************
+	t = t_start;
+	x = x0;
+	y = y0;
+	vx = v0*cos(theta*pi/180);
+	vy = v0*sin(theta*pi/180);
+	//*************************************************
+
+//***** Heun's Method *********************************************************	
+	for (i = 1;; i++)
+	{
+	if (active_PBC == 1) {if (t > t_end) {break;}}
+	if (active_PBC == 0) {if (y < 0) {break;}}
+
+	//---> k1 for positions
+	k1x = vx;
+	k1y = vy;
+	//---> k1 for velocities 
+	k1vx = ax(t, x, vx, vy);
+	k1vy = ay(t, y, vx, vy);
+	//---> k2 for positions
+	k2x = vx + k1vx*dt;
+	k2y = vy + k1vy*dt;
+	//---> k2 for velocities
+	k2vx = ax(t + dt, x + k1x*dt, vx + k1vx*dt, vy + k1vy*dt);
+	k2vy = ay(t + dt, y + k1y*dt, vx + k1vx*dt, vy + k1vy*dt);
+	//---> Positions 
+	x += 0.5*dt*(k1x + k2x);
+	y += 0.5*dt*(k1y + k2y);
+	//---> Velocities
+	vx += 0.5*dt*(k1vx + k2vx);
+	vy += 0.5*dt*(k1vy + k2vy);
+	//---> Time
+	t += dt;
+	}
+//*****************************************************************************
+
+	Gnu_RK2();
+
+return 0;
+}
+\end{verbatim}
+
+\quad O código que utiliza o método de RK4 é anexado abaixo:
+
+\begin{verbatim}
+# include <iostream>
+# include <cmath>
+# include <cstdlib>
+# include <fstream>
+# include <iomanip>
+# include <cstring>
+# include <sstream>
+# include "rungnu.h"
+
+using namespace std;
+
+int main()
+{
+int i, j; 
+double vx, vy;
+double x, y;
+double t; 
+double k1x, k2x, k3x, k4x;
+double k1y, k2y, k3y, k4y;
+double k1vx, k2vx, k3vx, k4vx;
+double k1vy, k2vy, k3vy, k4vy;
+double xabs_err, xrel_err;
+double yabs_err, yrel_err;
+stringstream ss[100];
+
+	GetDir();
+
+	//***** Setting Initial Conditions ****************
+	t = t_start;
+	x = x0;
+	y = y0;
+	vx = v0*cos(theta*pi/180);
+	vy = v0*sin(theta*pi/180);
+	//*************************************************
+
+//***** Runge-Kutta's Algorithm ************************** *                  
+        for (i = 1;; i++)
+        {
+	if (active_PBC == 1) {if (t > t_end) {break;}}
+	if (active_PBC == 0) {if (y < 0) {break;}}
+
+	//***** Defining the errors in each axis (only for problem 1!!!) ******
+	xabs_err = fabs(x - x_exact_1(t));
+	yabs_err = fabs(y - y_exact_1(t));
+	if (x != 0) {xrel_err = xabs_err/x;} else {xrel_err = 0;}
+	if (y != 0) {yrel_err = yabs_err/y;} else {yrel_err = 0;}
+	//*********************************************************************
+
+
+	k1x = dt*vx;
+	k1y = dt*vy;
+
+        k1vx = dt*ax(t, x, vx, vy);
+	k1vy = dt*ay(t, y, vx, vy);
+
+	k2x = dt*(vx + 0.5*k1vx);
+	k2y = dt*(vy + 0.5*k1vy);
+
+	k2vx = dt*ax(t + 0.5*dt, x + 0.5*k1x, vx + 0.5*k1vx, vy + 0.5*k1vy);
+	k2vy = dt*ay(t + 0.5*dt, y + 0.5*k1y, vx + 0.5*k1vx, vy + 0.5*k1vy);
+
+	k3x = dt*(vx + 0.5*k2vx);
+	k3y = dt*(vy + 0.5*k2vy);
+
+	k3vx = dt*ax(t + 0.5*dt, x + 0.5*k2x, vx + 0.5*k2vx, vy + 0.5*k2vy);
+	k3vy = dt*ay(t + 0.5*dt, y + 0.5*k2y, vx + 0.5*k2vx, vy + 0.5*k2vy);
+
+	k4x = dt*(vx + k3vx);
+	k4y = dt*(vy + k3vy);
+
+	k4vx = dt*ax(t + dt, x + k3x, vx + k3vx, vy + k3vy);
+	k4vy = dt*ay(t + dt, y + k3y, vx + k3vx, vy + k3vy);
+
+	x += (k1x + 2*k2x + 2*k3x + k4x)/6;
+	y += (k1y + 2*k2y + 2*k3y + k4y)/6;
+
+	vx += (k1vx + 2*k2vx + 2*k3vx + k4vx)/6;
+	vy += (k1vy + 2*k2vy + 2*k3vy + k4vy)/6;
+
+	t += dt;
+        }
+//********************************************************* 
+   
+	Gnu_RK4();
+
+return 0;          
+}
+\end{verbatim}
+
+\quad O código que utiliza o método de EC é anexado abaixo:
+
+\begin{verbatim}
+# include <iostream>
+# include <cmath>
+# include <cstdlib>
+# include <fstream>
+# include <iomanip>
+# include <cstring>
+# include <sstream>
+# include "rungnu.h"
+
+using namespace std;
+
+int main()
+{
+int i;
+double x, y;
+double vx, vy; 
+double t; 
+double xabs_err, xrel_err;
+double yabs_err, yrel_err;
+stringstream ss[100];
+
+	GetDir();
+
+	//***** Setting Initial Conditions ************************************
+	t = t_start;
+	x = x0;
+	y = y0;
+	vx = v0*cos(theta*pi/180);
+	vy = v0*sin(theta*pi/180);	
+	//*********************************************************************
+
+//***** Euler-Cromer's Algorithm **********************************************
+	outfile_1 << labelerror << endl << endl;
+
+	for (i = 1;; i++) 
+	{
+	if (active_PBC == 1) {if (t > t_end) {break;}}
+	if (active_PBC == 0) {if (y < 0) {break;}}	
+
+	t += dt; // Time incrementation
+	vx += ax(t, x, vx, vy)*dt; // Velocity in the x axis
+	vy += ay(t, y, vx, vy)*dt; // Velocity in the y axis
+	x += vx*dt; // x position at time t
+	y += vy*dt; // y position at time t
+	}
+//*****************************************************************************
+
+	Gnu_EC();
+
+return 0;
+}
+\end{verbatim}
+
+\newpage
+
+\begin{thebibliography}{n}
+\bibitem{Marion_book} THORNTON, T.~S. MARION B.~J. {\em Dinâmica Clássica de Partículas e Sistemas}, (editora Cengage Learning, 5ª edição, 2011)
+\bibitem{Zill_book} ZILL, G.~D. {\em Equações Diferenciais com Aplicações em Modelagem}, (editora Cengage Learning, 9ª edição, 2011)
+\end{thebibliography}
+
+\end{document} 

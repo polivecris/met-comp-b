@@ -1,0 +1,5 @@
+gcc lorentz.c -o lorentz 
+./lorentz
+gcc lorentz_h.c -o lorentz_h 
+./lorentz_h
+

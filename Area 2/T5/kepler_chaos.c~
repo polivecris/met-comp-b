@@ -1,0 +1,89 @@
+// Kepler caótico usando RK4
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+
+// Aceleracao (relacionada a forca)
+double ax(double x, double y){
+  double accel;
+  // x"=-x-2xy
+  accel=-x-2.0*x*y;
+  return accel;
+}
+
+double ay(double x, double y){
+  double accel;
+  // x"=-y-x²+y²
+  accel=-y-x*x+y*y;
+  return accel;
+}
+
+int main(){
+  int i, n, N;
+  // Grandezas fisicas envolvidas
+  double t,ti,tf,xo,x,y,yo,vx,vxo,vy,vyo,h,E,Eo,aox,aoy;
+
+  //Metodo Runge-Kutta de ordem 4
+  double k1x, k2x, k3x, k4x;     // Relacionado a posicao
+  double k1y, k2y, k3y, k4y;
+  
+  double k1vx, k2vx, k3vx, k4vx; // Relacionado a velocidade
+  double k1vy, k2vy, k3vy, k4vy;
+  
+  FILE*VV=fopen("VV.dat","w");
+  
+  // Condições iniciais
+  ti=0.0;
+  tf=1.0E3;
+
+  Eo=(1.0/20.0);
+ 
+  xo=0.0;
+  yo=0.02;
+
+  vyo=-0.08;
+  vxo=sqrt(2*Eo-vyo*vyo-yo*yo+(2.0/3.0)*yo*yo*yo);
+  
+  N=1.0E6;
+  h=(tf-ti)/(1.0*N);
+  
+  // Valores iniciais
+  x=xo;
+  y=yo;
+  vx=vxo;
+  vy=vyo;
+  E=Eo;
+  
+  t=ti;
+    
+  for(n=0;n<N;n++){
+    if(fabs(x)<0.001 && vx>0){
+    fprintf(VV,"%f %.12e %.12e %.12e %.12e %.12e\n",t,x,y,vx,vy,E);
+    printf("%f %.12e %.12e %.12e %.12e\n",t,x,y,vx,vy);
+    }
+
+    // Acelerações instantâneas
+    aox=ax(x,y);
+    aoy=ay(x,y);
+    
+    // Posicao no fim do intervalo
+    x=x+vx*h+0.5*aox*h*h;
+    y=y+vy*h+0.5*aoy*h*h;
+
+    // Velocidade final
+    vx=vx+0.5*(aox+ax(x,y))*h;
+    vy=vy+0.5*(aoy+ay(x,y))*h;
+    
+    
+    // Atualiza energia
+    E=0.5*vx*vx+0.5*vy*vy+0.5*x*x+0.5*y*y+x*x*y-(1.0/3.0)*y*y*y;
+    
+    // Atualiza tempo
+    t=(n+1)*h;
+  }
+  if(fabs(x)<0.001 && vx>0){
+  fprintf(VV,"%f %.12e %.12e %.12e %.12e %.12e\n",t,x,y,vx,vy,E);
+  printf("%f %.12e %.12e %.12e %.12e\n",t,x,y,vx,vy);
+  }
+  return 0;
+}

@@ -1,0 +1,66 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+
+double funcao(double t,double x){
+  double y;
+  y=x-(t*t)+1;
+  
+  return y;
+}
+
+double RK2PontoCentral(double t,double x, double h){
+  // double a, b, c, d; // Depende do metodo
+  double k1, k2;
+
+  k1=funcao(t,x);
+  k2=funcao((t+0.5*h),(x+0.5*k1*h));
+
+  x=x+(0*k1+1*k2)*h;
+
+  return x;
+}
+
+double RK4(double t, double x, double h){
+  double k1, k2, k3, k4;
+
+  k1=funcao(t,x);
+  k2=funcao(t+0.5*h,x+0.5*k1*h);
+  k3=funcao(t+0.5*h,x+0.5*k2*h);
+  k4=funcao(t+1.0*h,x+1.0*k3*h);
+
+  x=x+1.0/6.0*(k1+2*k2+2*k3+k4)*h;
+  
+}
+
+int main(){
+  double t,xo,x4,x2,h,ti,tf,err2,err4;
+
+  FILE*RK2=fopen("RK2.dat","w+");
+  FILE*RK4=fopen("RK4.dat","w+");
+  FILE*erro=fopen("erros.dat","w+");
+
+  h=1;
+  for(i=1;i<6;i++){
+    xo=0.5;
+    ti=0.0;
+    tf=2.0;
+    h=h/10;
+    
+    x4=xo;
+    x2=xo;
+    for(t=ti;t<tf;t+=h){
+      fprintf(RK2,"%f %.12e\n",t,x2);
+      fprintf(RK4,"%f %.12e\n",t,x4);
+      x2=RK2PontoCentral(t,x2,h);
+      x4=RK4(t,x4,h);
+    }
+    fprintf(RK2,"%f %.12e\n",tf,x2);
+    fprintf(RK4,"%f %.12e\n",tf,x4);
+    
+    err2=fabs(9.0-0.5*exp(2.0)-x2);
+    err4=fabs(9.0-0.5*exp(2.0)-x4)
+    fprintf(erro,"%f %.12e\n",h, err2,err4);
+  }
+  return 0;
+}

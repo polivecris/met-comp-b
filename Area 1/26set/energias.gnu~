@@ -1,0 +1,2 @@
+Eo=0.5*0.0*0.0+(1-cos(3.0))*10
+plot 'VelVerlet.dat' u 1:((0.5*$3*$3+(1-cos($2))*10-Eo)/Eo) w l t 'Verlet', 'RK2.dat' u 1:((0.5*$3*$3+(1-cos($2))*10-Eo)/Eo) w l t 'RK2', 'RK4.dat' u 1:((0.5*$3*$3+(1-cos($2))*10-Eo)/Eo) w l t 'RK4'

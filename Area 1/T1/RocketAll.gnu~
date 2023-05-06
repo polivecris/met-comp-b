@@ -1,0 +1,13 @@
+u=2600.0
+mi=2.8E2
+vi=0.0
+a=1.42E0
+g=9.8
+
+set ylabel 'Velocidade [m/s]'
+set xlabel 'Massa total [10^{4} kg]'
+
+set key bottom
+set title 'm_{i}=2.8E6 kg, m_{f}=0.7E6 kg, v_{0}=0.0 m/s, g=9.8 m/s^{2},u=2600.0 m/s, {/Symbol a}=1.42E4 kg/s, h=-1'
+
+plot 'RocketRK4Grav.dat' w l t 'Free', 'RocketRK4Grav.dat' w l t 'Grav', 'RocketRK4Res0.00e+00.dat' w l t 'c=0.0', 'RocketRK4Res1.00e-01.dat' w l t 'c=10^{-1}','RocketRK4Res1.00e-02.dat' w l t 'c=10^{-2}', 'RocketRK4Res1.00e-03.dat' w l t 'c=10^{-3}', 'RocketRK4Res1.00e-04.dat' w l t 'c=10^{-4}', 'RocketRK4Res1.00e-05.dat' w l t 'c=10^{-5}', 'RocketRK4Res1.00e-06.dat' w l t 'c=10^{-6}'
